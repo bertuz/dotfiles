@@ -8,7 +8,9 @@ setopt HIST_FCNTL_LOCK
 setopt +o nomatch
 # setopt autopushd
 
+# bertuz
 # vim mode
+#
 bindkey -v
 export KEYTIMEOUT=1
 
@@ -39,7 +41,8 @@ cursor_mode() {
 
 cursor_mode
 
-#end vim mode
+# bertuz
+# end vim mode
 
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 
@@ -54,13 +57,29 @@ source "$DOTFILES_PATH/shell/init.sh"
 
 fpath=("$DOTFILES_PATH/shell/zsh/themes" "$DOTFILES_PATH/shell/zsh/completions" "$DOTLY_PATH/shell/zsh/themes" "$DOTLY_PATH/shell/zsh/completions" $fpath)
 
-# autoload -Uz promptinit && promptinit
+autoload -Uz promptinit && promptinit
+# bertuz
+# autocomplete added myself??
+autoload -U compinit && compinit
+# bertuz
+# commented out default dotly theme
 # prompt ${DOTLY_THEME:-codely}
+# bertuz
+# end commented out
 
+# bertuz
 # vim edit the command
 autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey -M vicmd v edit-command-line
+# bertuz
+# end vim edit command
+
+# bertuz
+# lazy functions
+source "$DOTFILES_PATH/shell/zsh/lazy-functions.zsh"
+# bertuz
+# end lazy functions
 
 source "$DOTLY_PATH/shell/zsh/bindings/dot.zsh"
 source "$DOTLY_PATH/shell/zsh/bindings/reverse_search.zsh"
