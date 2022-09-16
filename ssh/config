@@ -1,0 +1,10 @@
+Host mygithub
+    HostName github.com
+    IdentityFile ~/.ssh/id_rsa_github_personal
+    User matteo@bertamini.net
+    IdentitiesOnly yes
+
+Host github.com
+    AddKeysToAgent yes
+    UseKeychain yes
+    IdentityFile ~/.ssh/id_rsa
