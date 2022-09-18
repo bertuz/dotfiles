@@ -30,3 +30,5 @@ alias o.='open .'
 alias k='kill -9'
 alias c.='(code $PWD &>/dev/null &)'
 alias up='dot package update_all'
+
+alias sudo="sudo "
