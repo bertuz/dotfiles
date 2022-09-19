@@ -18,3 +18,4 @@
     ~/.zshrc: shell/zsh/.zshrc
     ~/.inputrc: shell/.inputrc
     ~/.ssh/config: ssh/config
+    ~/.config/nvim: editors/nvim
