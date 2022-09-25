@@ -8,7 +8,7 @@
 - create:
     - $DOTFILES_PATH/shell/bash/completions
     - $DOTFILES_PATH/shell/bash/themes
-    - ~/.config/nvim
+    - ~/.config/nvim/autoload
 
 - link:
     ~/.bash_profile: shell/bash/.bash_profile
@@ -21,3 +21,4 @@
     ~/.ssh/config: ssh/config
     ~/.config/nvim/autoload: editors/nvim/autoload
     ~/.config/nvim/init.vim: editors/nvim/init.vim
+    ~/.config/nvim/autoload/plug.vim: editors/nvim/autoload/plug.vim
