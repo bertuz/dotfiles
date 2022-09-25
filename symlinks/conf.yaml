@@ -19,6 +19,5 @@
     ~/.zshrc: shell/zsh/.zshrc
     ~/.inputrc: shell/.inputrc
     ~/.ssh/config: ssh/config
-    ~/.config/nvim/autoload: editors/nvim/autoload
     ~/.config/nvim/init.vim: editors/nvim/init.vim
     ~/.config/nvim/autoload/plug.vim: editors/nvim/autoload/plug.vim
