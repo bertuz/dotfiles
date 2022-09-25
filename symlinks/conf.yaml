@@ -8,6 +8,7 @@
 - create:
     - $DOTFILES_PATH/shell/bash/completions
     - $DOTFILES_PATH/shell/bash/themes
+    - ~/.config/nvim
 
 - link:
     ~/.bash_profile: shell/bash/.bash_profile
@@ -18,4 +19,5 @@
     ~/.zshrc: shell/zsh/.zshrc
     ~/.inputrc: shell/.inputrc
     ~/.ssh/config: ssh/config
-    ~/.config/nvim: editors/nvim
+    ~/.config/nvim/autoload: editors/nvim/autoload
+    ~/.config/nvim/init.vim: editors/nvim/init.vim
