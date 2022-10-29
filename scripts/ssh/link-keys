@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? Link the ssh keys my personal github's config uses
+##?
+##? Usage:
+##?    set-press-and-hold-intellij
+docs::parse "$@"
+
+ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/backup/ssh/id_rsa ~/.ssh/id_rsa || true;
+ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/backup/ssh/id_rsa.pub ~/.ssh/id_rsa.pub || true;
+ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/backup/ssh/id_rsa_github_personal.pub ~/.ssh/id_rsa_github_personal.pub || true;
+ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/backup/ssh/id_rsa_github_personal ~/.ssh/id_rsa_github_personal || true;

@@ -18,3 +18,4 @@
     ~/bin/touch: /opt/homebrew/bin/gtouch
     ~/bin/zsh: /opt/homebrew/bin/zsh
     ~/Library/Preferences/.GlobalPreferences.plist: os/mac/system/Library/Preferences/.GlobalPreferences.plist
+    ~/Library/Preferences/com.googlecode.iterm2.plist: os/mac/iTerm/com.googlecode.iterm2.plist

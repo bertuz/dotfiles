@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? press and hold enabled/disabled for intellij
+##?
+##? Usage:
+##?    set-press-and-hold-intellij true|false
+docs::parse "$@"
+
+if [[ "${1}" != "true" && "${1}" != "false" ]]; then
+  echo "invalid value: true or false admitted. Given ${1}";
+  exit 1;
+fi;
+
+defaults write com.jetbrains.intellij ApplePressAndHoldEnabled -bool ${1} && echo "set."
