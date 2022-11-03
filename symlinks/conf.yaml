@@ -21,3 +21,4 @@
     ~/.ssh/config: ssh/config
     ~/.config/nvim/init.vim: editors/nvim/init.vim
     ~/.config/nvim/autoload/plug.vim: editors/nvim/autoload/plug.vim
+    ~/.ideavimrc: editors/intellij/.ideavimrc
