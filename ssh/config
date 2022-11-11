@@ -7,4 +7,5 @@ Host mygithub
 Host github.com
     AddKeysToAgent yes
     UseKeychain yes
+    User matteo.bertamini@telefonica.com
     IdentityFile ~/.ssh/id_rsa
