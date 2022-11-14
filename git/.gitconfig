@@ -1,3 +1,7 @@
 [user]
 	name = Matteo B
 	email = matteo.bertamini@telefonica.com
+
+[alias]
+	st = status
+	c = !git add -A && git commit
