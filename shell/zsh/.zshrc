@@ -4,13 +4,12 @@
 
 # ZSH Ops
 setopt HIST_IGNORE_ALL_DUPS
-setopt HIST_FCNTL_LOCK
+# setopt HIST_FCNTL_LOCK
 setopt +o nomatch
 # setopt autopushd
 
 # bertuz
 # vim mode
-#
 bindkey -v
 export KEYTIMEOUT=1
 
@@ -61,6 +60,7 @@ autoload -Uz promptinit && promptinit
 # bertuz
 # autocomplete added myself??
 autoload -U compinit && compinit
+
 # bertuz
 # commented out default dotly theme
 # prompt ${DOTLY_THEME:-codely}

@@ -1,0 +1,39 @@
+#compdef cdc
+
+_cdc() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  _arguments \
+    '1: :->code_context_dir' \
+    '2: :->code_repo_dir' \
+    '*: :->args'
+
+  case $state in
+  code_context_dir)
+    existing_contexts=$(_cdc_code_contexts)
+    _arguments "1:Context:($existing_contexts)"
+    ;;
+  code_repo_dir)
+    repo=$(_cdc_code_repos $words[2])
+    _arguments "2:Repo:($repo)"
+    ;;
+  *)
+    _files
+    ;;
+  esac
+}
+
+_cdc_code_contexts() {
+  code_context=$(ls "$HOME/Code")
+
+  echo "$code_context" | sort -u
+}
+
+_cdc_code_repos() {
+  repo=$(ls "$HOME/Code/${1}")
+
+  echo "$repo" | sort -u
+}
+
+_cdc "$@"

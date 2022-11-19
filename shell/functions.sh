@@ -18,13 +18,16 @@ function recent_dirs() {
   cd "$(echo "$selected" | sed "s/\~/$escaped_home/")" || echo "Invalid directory"
 }
 
-cd()
-{
+cd() {
     builtin cd "$@"
     ls
     echo "\n"
 }
 
-cdc () {
-  echo "provo!";
+function cdc () {
+  builtin cd "${HOME}/Code/${1}"
+
+  if [[ $2 != "" ]] ; then
+    builtin cd "${2}"
+  fi
 }
