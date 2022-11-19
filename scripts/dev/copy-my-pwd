@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? Copy current VPN password
+##?
+##? Usage:
+##?    copy-my-pwd
+docs::parse "$@"
+
+gpg --decrypt ~/tel.pwd.gpg | awk 'NR>1{print PREV} {PREV=$0} END{printf("%s",$0)}' | pbcopy

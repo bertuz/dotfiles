@@ -25,3 +25,6 @@ cd()
     echo "\n"
 }
 
+cdc () {
+  echo "provo!";
+}

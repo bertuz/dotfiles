@@ -6,7 +6,7 @@ alias ...="cd ../.."
 alias ll="ls -l"
 alias la="ls -la"
 alias ~="cd ~"
-alias cdc="cd ~/Code"
+#alias cdc="cd ~/Code"
 alias dotfiles='cd $DOTFILES_PATH'
 
 # Git
