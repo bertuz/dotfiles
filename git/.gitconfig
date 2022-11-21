@@ -5,3 +5,5 @@
 [alias]
 	st = status
 	c = !git add -A && git commit
+[core]
+	excludefile = /Users/mbertamini/.gitignore_global

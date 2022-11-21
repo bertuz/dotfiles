@@ -23,3 +23,4 @@
     ~/.config/nvim/autoload/plug.vim: editors/nvim/autoload/plug.vim
     ~/.ideavimrc: editors/intellij/.ideavimrc
     ~/.gitconfig: git/.gitconfig
+    ~/.gitignore_global: git/.gitignore_global
