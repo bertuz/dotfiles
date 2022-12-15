@@ -26,3 +26,5 @@ map Q gq
 
 " Find more examples here: https://jb.gg/share-ideavimrc
 set commentary
+Plug 'terryma/vim-multiple-cursors'
+set multiple-cursors

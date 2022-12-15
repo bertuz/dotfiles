@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? delete the branches that have been merged into main
+##?
+##? Usage:
+##?    delete-marged-branches
+docs::parse "$@"
+
+git branch --merged | egrep -v "(^\*|master|main|dev)" | xargs git branch -d
