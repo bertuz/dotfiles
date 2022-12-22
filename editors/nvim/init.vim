@@ -72,5 +72,7 @@ autocmd fzf VimEnter * command! -nargs=* Rgr
   \   <bang>0)
 
 "let g:VM_maps = {}
-let g:VM_maps["Add Cursor Down"]    = '<leader>j'   " new cursor down
-let g:VM_maps["Add Cursor Up"]      = '<M-k>'   " new cursor up
+"let g:VM_maps["Add Cursor Down"]    = '<leader>j'   " new cursor down
+"let g:VM_maps["Add Cursor Up"]      = '<M-k>'   " new cursor up
+
+set clipboard+=unnamedplus

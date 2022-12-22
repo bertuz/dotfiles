@@ -28,3 +28,5 @@ map Q gq
 set commentary
 Plug 'terryma/vim-multiple-cursors'
 set multiple-cursors
+
+clipboard+=unnamedplus
