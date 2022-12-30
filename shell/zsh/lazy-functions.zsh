@@ -1,24 +1,30 @@
 # aliases
+jenv_cmds=("jenv" "java" "gradle" "mvn")
+
 function lazy_jenv {
-  unset -f jenv
-  unset -f java
+  local value
+  for value in ${jenv_cmds[@]}; do
+    unset -f ${value}
+  done
 
   export PATH="$HOME/.jenv/bin:$PATH"
   eval "$(jenv init -)"
 }
 
-# aliases
-function jenv { lazy_jenv; jenv "$@"; }
-function java { lazy_jenv; java "$@"; }
+for value in ${jenv_cmds[@]}; do
+  function ${value} {
+    lazy_jenv; ${0} "$@";
+  }
+done
 
+unset value;
+
+nvm_cmds=("nvm" "npm" "node" "npx" "yarn")
 function lazy_nvm {
-  unset -f nvm
-  unset -f npm
-  unset -f node
-  unset -f npx
-  unset -f yarn
-  unset -f gradle
-  unset -f mvn
+  local value;
+  for value in ${nvm_cmds[@]}; do
+    unset -f ${value}
+  done
 
   if [ -d "${HOME}/.nvm" ]; then
     export NVM_DIR="$HOME/.nvm"
@@ -28,10 +34,6 @@ function lazy_nvm {
 }
 
 # aliases
-function nvm { lazy_nvm; nvm "$@"; }
-function npm { lazy_nvm; npm "$@"; }
-function node { lazy_nvm; node "$@"; }
-function npx { lazy_nvm; npx "$@"; }
-function yarn { lazy_nvm; yarn "$@"; }
-function gradle { lazy_nvm; gradle "$@"; }
-function mvn { lazy_nvm; mvn "$@"; }
+for local value in ${nvm_cmds[@]}; do
+  function ${value} { lazy_nvm; ${0} "$@"; }
+done
