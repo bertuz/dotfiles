@@ -4,7 +4,11 @@
 "" -- Suggested options --
 " Show a few lines of context around the cursor. Note that this makes the
 " text scroll if you mouse-click near the start or end of the window.
-set scrolloff=5
+set scrolloff=10
+set linenumber
+set showmode
+set showcmd
+set visualbell
 
 " Do incremental searching.
 set incsearch
@@ -26,7 +30,18 @@ map Q gq
 
 " Find more examples here: https://jb.gg/share-ideavimrc
 set commentary
-Plug 'terryma/vim-multiple-cursors'
-set multiple-cursors
 
-clipboard+=unnamedplus
+set clipboard+=unnamed
+let mapleader = " "
+
+set highlightedyank
+
+
+" Search 
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
+" End Search
+
+set nerdtree

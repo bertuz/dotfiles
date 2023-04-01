@@ -23,7 +23,7 @@ nvm_cmds=("nvm" "npm" "node" "npx" "yarn")
 function lazy_nvm {
   local value;
   for value in ${nvm_cmds[@]}; do
-    unset -f ${value}
+    unset -f ${value};
   done
 
   if [ -d "${HOME}/.nvm" ]; then
@@ -34,6 +34,6 @@ function lazy_nvm {
 }
 
 # aliases
-for local value in ${nvm_cmds[@]}; do
+for value in ${nvm_cmds[@]}; do
   function ${value} { lazy_nvm; ${0} "$@"; }
 done
