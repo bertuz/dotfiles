@@ -84,3 +84,9 @@ source "$DOTFILES_PATH/shell/zsh/lazy-functions.zsh"
 source "$DOTLY_PATH/shell/zsh/bindings/dot.zsh"
 source "$DOTLY_PATH/shell/zsh/bindings/reverse_search.zsh"
 source "$DOTFILES_PATH/shell/zsh/key-bindings.zsh"
+
+## [Completion] 
+## Completion scripts setup. Remove the following line to uninstall
+[[ -f /Users/mbertamini/.dart-cli-completion/zsh-config.zsh ]] && . /Users/mbertamini/.dart-cli-completion/zsh-config.zsh || true
+## [/Completion]
+

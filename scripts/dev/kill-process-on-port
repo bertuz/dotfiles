@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? Kill the process on the specified port
+##?
+##? Usage:
+##?    kill-process-on-port <port>
+docs::parse "$@"
+
+toKill=$(lsof -t -i:$1 || echo "-1")
+
+if [[ "${toKill}" == "-1" ]]; then
+    echo "No process found on port $1"
+    exit 0
+fi
+
+kill ${toKill}
+echo "Process ${toKill} killed 🙅🏽‍"

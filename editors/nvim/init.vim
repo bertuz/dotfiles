@@ -7,6 +7,10 @@ Plug 'junegunn/fzf.vim'
 Plug 'simnalamburt/vim-mundo'
 Plug 'simeji/winresizer'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-tree/nvim-web-devicons'
+Plug 'MunifTanjim/nui.nvim'
+Plug 'nvim-neo-tree/neo-tree.nvim', {'branch': 'v2.x'}
 call plug#end()
 
 syntax on
@@ -76,3 +80,5 @@ autocmd fzf VimEnter * command! -nargs=* Rgr
 "let g:VM_maps["Add Cursor Up"]      = '<M-k>'   " new cursor up
 
 set clipboard+=unnamedplus
+
+
