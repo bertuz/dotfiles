@@ -45,3 +45,12 @@ set hlsearch
 " End Search
 
 set nerdtree
+
+Plug 'terryma/vim-multiple-cursors'
+set multiple-cursors
+nmap <C-n> <Plug>NextWholeOccurrence
+xmap <C-n> <Plug>NextWholeOccurrence
+nmap g<C-n> <Plug>NextOccurrence
+xmap g<C-n> <Plug>NextOccurrence
+xmap <C-x> <Plug>SkipOccurrence
+xmap <C-p> <Plug>RemoveOccurrence

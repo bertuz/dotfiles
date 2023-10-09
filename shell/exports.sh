@@ -24,6 +24,8 @@ fi
 
 export FZF_DEFAULT_OPTS="--color=$fzf_colors --reverse"
 
+export DOCKER_SOCK_FILE=/var/run/docker.sock
+
 # ------------------------------------------------------------------------------
 # Path - The higher it is, the more priority it has
 # ------------------------------------------------------------------------------
