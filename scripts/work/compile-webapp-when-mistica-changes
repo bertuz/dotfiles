@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? it recompiles webapp whenever mistica is overridden by a new local compilation for testing purposes
+##?
+##? Usage:
+##?    compile-webapp-when-mistica-changes [--tunnel]
+docs::parse "$@"
+
+yarn start all ${1} &
+pid_to_kill=${!}
+
+kill_process() {
+  while kill ${pid_to_kill}; do
+    echo "killing the process... ${pid_to_kill}"
+    sleep 1;
+  done
+}
+
+trap "kill_process && echo Exited!; exit;" SIGINT SIGTERM
+
+while [[ 1=1 ]]
+do
+  echo ${pid_to_kill}
+
+  watch --chgexit -n 10 "ls -a -l -R -T node_modules/@telefonica/mistica | sha256sum" && echo "Detected a change!"
+
+  while kill ${pid_to_kill}; do
+    echo "trying to kill the process ${pid_to_kill}..."
+    sleep 1;
+  done
+
+  echo "alright, let's restart it"
+  yarn start all ${1} &
+  pid_to_kill=${!}
+
+  sleep 10
+done

@@ -7,7 +7,7 @@ source "$DOTLY_PATH/scripts/core/_main.sh"
 ##? Launch the android emulator
 ##?
 ##? Usage:
-##?    android-emulator <avd>
+##?    android-emulator <list-avd> <avd-device>
 docs::parse "$@"
 
 avd=$(echo "$1")
