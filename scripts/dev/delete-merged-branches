@@ -7,7 +7,7 @@ source "$DOTLY_PATH/scripts/core/_main.sh"
 ##? delete the branches that have been merged into main
 ##?
 ##? Usage:
-##?    delete-marged-branches
+##?    delete-merged-branches
 docs::parse "$@"
 
 git branch --merged | egrep -v "(^\*|master|main|dev)" | xargs git branch -d

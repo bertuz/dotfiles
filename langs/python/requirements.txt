@@ -1,10 +1,13 @@
 cfgv==3.3.1
 distlib==0.3.6
+docopt @ file:///private/tmp/python-docopt-20231106-5489-1nkfetr/docopt-0.6.2
 filelock==3.12.2
 identify==2.5.24
 nodeenv==1.8.0
+numpy @ file:///private/tmp/numpy-20240206-5894-1wazl8/numpy-1.26.4
 platformdirs==3.8.0
 pre-commit==3.3.3
-protobuf==4.23.4
+protobuf==4.25.2
+psutil @ file:///private/tmp/python-psutil-20240119-4673-f71z61/psutil-5.9.8
 PyYAML==6.0
 virtualenv==20.23.1

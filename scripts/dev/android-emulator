@@ -7,14 +7,14 @@ source "$DOTLY_PATH/scripts/core/_main.sh"
 ##? Launch the android emulator
 ##?
 ##? Usage:
-##?    android-emulator <list-avd> <avd-device>
+##?    android-emulator list
+##?    android-emulator run <avd>
 docs::parse "$@"
 
-avd=$(echo "$1")
-
-if [[ "${avd}" == "list" ]]; then
+if [[ ${list} == true ]]; then
 	~/Library/Android/sdk/emulator/emulator -list-avds
 	exit 0
 fi
 
-~/Library/Android/sdk/emulator/emulator -avd ${1}
+avd=$(echo "$2")
+~/Library/Android/sdk/emulator/emulator -avd ${avd}
