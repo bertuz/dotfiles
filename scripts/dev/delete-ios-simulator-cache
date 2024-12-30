@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? it deltes the simualtor's cache in order to make it run again
+##?
+##? Usage:
+##?    delete-ios-simulator-cache
+docs::parse "$@"
+
+rm -r ~/Library/Developer/CoreSimulator/Caches
+echo "Now you can run the simulator again."

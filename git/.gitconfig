@@ -10,3 +10,8 @@
 	excludefile = /Users/mbertamini/.gitignore_global
 [commit]
 	gpgsign = true
+[credential]
+        helper = cache --timeout=86400
+[includeif "gitdir:~/Code/Work/"]
+	path = ~/.gitconfig-work
+

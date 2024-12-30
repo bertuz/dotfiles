@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? it recompiles mística and it copies it to webapp as it were installed a new version
+##?
+##? Usage:
+##?    compile-when-mistica-changes
+docs::parse "$@"
+
+git_root=''
+dir=''
+repo_name=''
+
+if git_root=$(git rev-parse --show-cdup 2>/dev/null || false); then
+  dir=$(builtin cd "./${git_root}" && pwd)
+  repo_name=$(basename "$(git rev-parse --show-toplevel)")
+
+  if [[ $repo_name == "mistica-web" ]]; then 
+    pushd ./$git_root; yarn build; cp css/mistica.css ../webapp/node_modules/@telefonica/mistica/css; cp -r dist/* ../webapp/node_modules/@telefonica/mistica/dist; cp -r dist-es/* ../webapp/node_modules/@telefonica/mistica/dist-es/
+    popd;
+  else
+    echo "you are not into a mística repo. Exiting..."
+    exit 1;
+  fi
+
+  echo "done."
+else
+  echo "you are not into a mística repo. Exiting..."
+fi
+

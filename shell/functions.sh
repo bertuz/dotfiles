@@ -31,3 +31,7 @@ function cdc () {
     builtin cd "${2}"
   fi
 }
+
+function o2de-pages () {
+  pushd ./ && cd $(grep -Ril --extended-regexp "O2De.+Agent" ./web/src/pages | sed -E "s/\.\/web\/src\/pages\/([^\/]+)\/.+\.ts[x]{0,1}/\1/g" | sed '$!N; /^\(.*\)\n\1$/!P; D' | sed 's/^/web\/src\/pages\//; s/$//' | fzf )
+}

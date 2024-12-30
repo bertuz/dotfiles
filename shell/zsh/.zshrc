@@ -90,3 +90,10 @@ source "$DOTFILES_PATH/shell/zsh/key-bindings.zsh"
 [[ -f /Users/mbertamini/.dart-cli-completion/zsh-config.zsh ]] && . /Users/mbertamini/.dart-cli-completion/zsh-config.zsh || true
 ## [/Completion]
 
+
+# bun completions
+[ -s "/Users/mbertamini/.bun/_bun" ] && source "/Users/mbertamini/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

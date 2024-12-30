@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? It reboots the MacOS audio system
+##?
+##? Usage:
+##?    reboot-audio
+docs::parse "$@"
+
+ps aux | grep 'coreaudio[d]' | awk '{print $2}' | xargs sudo kill
+echo "Rebooted."
+
