@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? copy the current branch name into the clipboard
+##?
+##? Usage:
+##?    copy-current-branch
+docs::parse "$@"
+
+git branch --show-current | pbcopy

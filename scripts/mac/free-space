@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? It frees up space on the MacOS
+##?
+##? Usage:
+##?    reboot-audio
+docs::parse "$@"
+
+docker system prune -a
+docker image prune -a
+brew cleanup
+
+echo "Rebooted."
+

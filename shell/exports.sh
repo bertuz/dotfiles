@@ -30,6 +30,7 @@ export DOCKER_SOCK_FILE=/var/run/docker.sock
 # Path - The higher it is, the more priority it has
 # ------------------------------------------------------------------------------
 path=(
+  "$HOME/.local/bin"
   "$HOME/.pub-cache/bin"
   "$HOME/bin"
   "$DOTLY_PATH/bin"

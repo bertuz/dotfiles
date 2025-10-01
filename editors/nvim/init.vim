@@ -29,6 +29,7 @@ set undodir=~/.configure/nvim/private-undo-history
 set undolevels=10000
 set ignorecase
 set smartcase
+set nu
 
 augroup fzf
   autocmd!

@@ -10,6 +10,6 @@ source "$DOTLY_PATH/scripts/core/_main.sh"
 ##?    hello
 docs::parse "$@"
 
-git config user.email "matteo.bertamini@telefonica.com"
+git config user.email "61736059+brtbrt@users.noreply.github.com"
 git config user.name "Matteo Bertamini"
 git config user.signingkey 1D9B2D75EB0FD6A323761D217CD5CEF29690E45E

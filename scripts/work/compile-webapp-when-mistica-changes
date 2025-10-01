@@ -26,7 +26,8 @@ while [[ 1=1 ]]
 do
   echo ${pid_to_kill}
 
-  watch --chgexit -n 10 "ls -a -l -R -T node_modules/@telefonica/mistica | sha256sum" && echo "Detected a change!"
+  echo $PWD
+  watch --chgexit -n 10 "ls -a -l -R -T ${PWD}/node_modules/@telefonica/mistica | sha256sum" && echo "Detected a change!"
 
   while kill ${pid_to_kill}; do
     echo "trying to kill the process ${pid_to_kill}..."

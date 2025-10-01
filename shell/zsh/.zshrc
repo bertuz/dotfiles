@@ -97,3 +97,10 @@ source "$DOTFILES_PATH/shell/zsh/key-bindings.zsh"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# mcp
+if [ -f ~/mcp/.env ]; then
+  set -a
+  source ~/mcp/.env
+  set +a
+fi

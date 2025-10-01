@@ -14,4 +14,5 @@ ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/backup/ssh/id_rsa ~/.ssh/i
 ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/backup/ssh/id_rsa.pub ~/.ssh/id_rsa.pub || true;
 ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/backup/ssh/id_rsa_github_personal.pub ~/.ssh/id_rsa_github_personal.pub || true;
 ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/backup/ssh/id_rsa_github_personal ~/.ssh/id_rsa_github_personal || true;
-ln -s ~/Library/Mobile\ Documents/com\~apple\~CloudDocs/backup/upload-keystore.jks upload-keystore.jks || true;
+ln -s ~/Library/Mobile\ Documents/com\~apple\~CloudDocs/backup/upload-keystore.jks ~/upload-keystore.jks || true;
+ln -s ~/Library/Mobile\ Documents/com\~apple\~CloudDocs/backup/mcp ~/mcp || true;

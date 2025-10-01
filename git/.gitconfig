@@ -6,8 +6,9 @@
 [alias]
 	st = status
 	c = !git add -A && git commit
+	reset-permissions = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" --color=newer | git apply
 [core]
-	excludefile = /Users/mbertamini/.gitignore_global
+	excludefile = ~/.gitignore_global
 [commit]
 	gpgsign = true
 [credential]
