@@ -20,10 +20,11 @@
     ~/.inputrc: shell/.inputrc
     ~/.ssh/config: ssh/config
     ~/.config/nvim/init.vim: editors/nvim/init.vim
+    ~/.config/nvim/ginit.vim: editors/nvim/ginit.vim
     ~/.config/nvim/autoload/plug.vim: editors/nvim/autoload/plug.vim
     ~/.ideavimrc: editors/intellij/.ideavimrc
     ~/.gitconfig: git/.gitconfig
     ~/.gitignore_global: git/.gitignore_global
-    ~/gitconfig-work: git/.gitconfig-work
+    ~/.gitconfig-work: git/.gitconfig-work
     ~/gnupg/gpg.conf: gnupg/gpg.conf
     ~/gnupg/gpg-agent.conf: gnupg/gpg-agent.conf

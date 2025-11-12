@@ -1,56 +1,59 @@
 "" Source your .vimrc
 "source ~/.vimrc
+"source ~/.config/nvim/init.vim
 
-"" -- Suggested options --
-" Show a few lines of context around the cursor. Note that this makes the
-" text scroll if you mouse-click near the start or end of the window.
-set scrolloff=10
-set linenumber
-set showmode
-set showcmd
-set visualbell
+" -- Suggested options --
+ Show a few lines of context around the cursor. Note that this makes the
+ text scroll if you mouse-click near the start or end of the window.
+ set scrolloff=10
+ set linenumber
+ set showmode
+ set showcmd
+ set visualbell
+ set undofile
+ set undodir=~/.vim/undointellij
 
-" Do incremental searching.
-set incsearch
+ " Do incremental searching.
+ set incsearch
 
-" Don't use Ex mode, use Q for formatting.
-map Q gq
-
-
-"" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
-"" Map \r to the Reformat Code action
-"map \r <Action>(ReformatCode)
-
-"" Map <leader>d to start debug
-"map <leader>d <Action>(Debug)
-
-"" Map \b to toggle the breakpoint on the current line
-"map \b <Action>(ToggleLineBreakpoint)
+ " Don't use Ex mode, use Q for formatting.
+ map Q gq
 
 
-" Find more examples here: https://jb.gg/share-ideavimrc
-set commentary
+ "" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
+ "" Map \r to the Reformat Code action
+ "map \r <Action>(ReformatCode)
 
-set clipboard+=unnamed
-let mapleader = " "
+ "" Map <leader>d to start debug
+ "map <leader>d <Action>(Debug)
 
-set highlightedyank
+ "" Map \b to toggle the breakpoint on the current line
+ "map \b <Action>(ToggleLineBreakpoint)
 
 
-" Search 
-set ignorecase
-set smartcase
-set incsearch
-set hlsearch
-" End Search
+ " Find more examples here: https://jb.gg/share-ideavimrc
+ set commentary
 
-set nerdtree
+ set clipboard+=unnamed
+ let mapleader = " "
 
-Plug 'terryma/vim-multiple-cursors'
-set multiple-cursors
-nmap <C-n> <Plug>NextWholeOccurrence
-xmap <C-n> <Plug>NextWholeOccurrence
-nmap g<C-n> <Plug>NextOccurrence
-xmap g<C-n> <Plug>NextOccurrence
-xmap <C-x> <Plug>SkipOccurrence
-xmap <C-p> <Plug>RemoveOccurrence
+ set highlightedyank
+
+
+ " Search
+ set ignorecase
+ set smartcase
+ set incsearch
+ set hlsearch
+ " End Search
+
+ set nerdtree
+
+ Plug 'terryma/vim-multiple-cursors'
+ set multiple-cursors
+ nmap <C-n> <Plug>NextWholeOccurrence
+ xmap <C-n> <Plug>NextWholeOccurrence
+ nmap g<C-n> <Plug>NextOccurrence
+ xmap g<C-n> <Plug>NextOccurrence
+ xmap <C-x> <Plug>SkipOccurrence
+ xmap <C-p> <Plug>RemoveOccurrence

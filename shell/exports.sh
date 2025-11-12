@@ -12,6 +12,7 @@
 export JAVA_HOME='/Library/Java/JavaVirtualMachines/temurin-20.jdk/Contents/Home'
 export GEM_HOME="$HOME/.gem"
 export GOPATH="$HOME/.go"
+export REPOS_DIR="$HOME/Code/Work"
 
 # ------------------------------------------------------------------------------
 # Apps
