@@ -22,6 +22,8 @@ let mapleader="<space>"
 map <Space> <Leader>
 nnoremap <leader>bn :bnext<cr> ;buffer next
 nnoremap <leader>tn gt ;next tab
+tnoremap <S-E> <C-\><C-n>
+
 
 let g:winresizer_start_key = "<leader>w"
 map <esc> :noh<cr>

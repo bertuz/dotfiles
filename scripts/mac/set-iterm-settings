@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? it sets up iterm settings (symlink does not work well)
+##?
+##? Usage:
+##?    set-iterm-settings
+docs::parse "$@"
+
+cp "${DOTLY_PATH}/os/mac/iTerm/com.googlecode.iterm2.plist" ~/Library/Preferences/com.googlecode.iterm2.plist
+
+echo "Settings copied."
+

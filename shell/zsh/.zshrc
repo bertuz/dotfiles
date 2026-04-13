@@ -98,9 +98,14 @@ source "$DOTFILES_PATH/shell/zsh/key-bindings.zsh"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# intellij
+export PATH="/Users/mbertamini/Library/Application Support/JetBrains/Toolbox/scripts:$PATH"
+
 # mcp
 if [ -f ~/mcp/.env ]; then
   set -a
   source ~/mcp/.env
   set +a
 fi
+
+export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"

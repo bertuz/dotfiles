@@ -1,3 +1,5 @@
-zimfw() { source /Users/mbertamini/.dotfiles/shell/zsh/.zim/zimfw.zsh "${@}" }
-zmodule() { source /Users/mbertamini/.dotfiles/shell/zsh/.zim/zimfw.zsh "${@}" }
-source /Users/mbertamini/.dotfiles/shell/zsh/.zim/modules/oblong/oblong.zsh-theme
+# FILE AUTOMATICALLY GENERATED FROM /Users/mbertamini/.zimrc
+# EDIT THE SOURCE FILE AND THEN RUN zimfw build. DO NOT DIRECTLY EDIT THIS FILE!
+
+if [[ -e ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]] zimfw() { source "${HOME}/.dotfiles/shell/zsh/.zim/zimfw.zsh" "${@}" }
+source "${HOME}/.dotfiles/shell/zsh/.zim/modules/oblong/oblong.zsh-theme"

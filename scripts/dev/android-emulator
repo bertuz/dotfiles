@@ -11,10 +11,15 @@ source "$DOTLY_PATH/scripts/core/_main.sh"
 ##?    android-emulator run <avd>
 docs::parse "$@"
 
+export ANDROID_SDK_ROOT="/opt/homebrew/share/android-commandlinetools"
+export ANDROID_HOME="$ANDROID_SDK_ROOT"
+export PATH="$ANDROID_SDK_ROOT/emulator:$PATH"
+export PATH="$ANDROID_SDK_ROOT/platform-tools:$PATH"
+
 if [[ ${list} == true ]]; then
-	~/Library/Android/sdk/emulator/emulator -list-avds
+	emulator -list-avds
 	exit 0
 fi
 
 avd=$(echo "$2")
-~/Library/Android/sdk/emulator/emulator -avd ${avd}
+emulator -avd ${avd}

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? it sets up iterm settings (symlink does not work well)
+##?
+##? Usage:
+##?    backup-iterm-settings
+docs::parse "$@"
+
+cp ~/Library/Preferences/com.googlecode.iterm2.plist "${DOTLY_PATH}/os/mac/iTerm/com.googlecode.iterm2.plist"
+
+echo "Settings backed up into dotfiles. Remember to commit and push it."

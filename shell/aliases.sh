@@ -34,4 +34,4 @@ alias up='dot package update_all'
 alias sudo="sudo "
 alias vim="nvim"
 alias vi="nvim"
-alias python="python3.13"
+#alias python="python3.13"
