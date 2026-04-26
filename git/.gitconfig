@@ -2,7 +2,6 @@
 	name = Matteo Bertamini
 	email = matteo@bertamini.net
 	signingkey = D70D5F19D70177717E9819C53483296519CC8E12
-
 [alias]
 	st = status
 	c = !git add -A && git commit
