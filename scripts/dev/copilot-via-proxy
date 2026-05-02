@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? Let copilot be used as proxy for claude
+##?
+##? Usage:
+##?    copilot-via-proxy
+docs::parse "$@"
+
+copilot-api start --proxy-env;

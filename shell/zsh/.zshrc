@@ -109,3 +109,6 @@ if [ -f ~/mcp/.env ]; then
 fi
 
 export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
+
+# opencode
+export PATH=/Users/mbertamini/.opencode/bin:$PATH

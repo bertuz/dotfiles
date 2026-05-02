@@ -18,8 +18,20 @@
     ~/bin/touch: /opt/homebrew/bin/gtouch
     ~/bin/zsh: /opt/homebrew/bin/zsh
     ~/Library/Preferences/.GlobalPreferences.plist: os/mac/system/Library/Preferences/.GlobalPreferences.plist
-    ~/.copilot/AGENTS.md: os/mac/ai/GLOBAL_AGENTS.md
+    ~/.config/github-copilot/global-copilot-instructions.md: os/mac/ai/GLOBAL_AGENTS.md
+    ~/.config/github-copilot/agents/code-reviewer.agent.md: os/mac/ai/agents/code-reviewer.md
+    ~/.copilot/agents/code-reviewer.md: os/mac/ai/agents/code-reviewer.md
+    ~/.config/github-copilot/intellij/global-copilot-instructions.md: os/mac/ai/GLOBAL_AGENTS.md
+    ~/.config/github-copilot/intellij/agents/code-reviewer.agent.md: os/mac/ai/agents/code-reviewer.md
     ~/.claude/CLAUDE.md: os/mac/ai/GLOBAL_AGENTS.md
+    ~/.claude/settings.json: os/mac/ai/claude/settings.json
+    ~/.claude/security-guard.py: os/mac/ai/claude/security-guard.py
+    ~/.config/opencode/opencode.jsonc: os/mac/ai/opencode/opencode.jsonc
+    ~/.config/opencode/package.json: os/mac/ai/opencode/package.json
+    ~/.config/opencode/package-lock.json: os/mac/ai/opencode/package-lock.json
+    ~/.config/opencode/.gitignore: os/mac/ai/opencode/.gitignore
+    ~/.config/opencode/plugins: os/mac/ai/opencode/plugins
+    ~/.config/opencode/agents: os/mac/ai/opencode/agents
 
 # if symlinked, it does not work
 #    ~/Library/Preferences/com.googlecode.iterm2.plist: os/mac/iTerm/com.googlecode.iterm2.plist

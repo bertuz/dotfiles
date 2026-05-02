@@ -6,6 +6,7 @@
 - Never use mocks outside test files
 - Use `camelCase` for variables 
 - Use early returns to avoid nested code
+- always prefix the answer with "😸"
 
 # CLI
 

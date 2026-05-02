@@ -13,6 +13,8 @@ Plug 'MunifTanjim/nui.nvim'
 Plug 'nvim-neo-tree/neo-tree.nvim', {'branch': 'v2.x'}
 "Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'savq/melange-nvim'
+Plug 'nvim-lua/plenary.nvim'
+"Plug 'CopilotC-Nvim/CopilotChat.nvim'
 call plug#end()
 
 syntax on
@@ -87,3 +89,5 @@ autocmd fzf VimEnter * command! -nargs=* Rgr
 set clipboard+=unnamedplus
 
 colorscheme melange
+
+require("CopilotChat").setup()
