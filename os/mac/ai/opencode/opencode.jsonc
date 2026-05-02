@@ -1,2 +1,37 @@
 {
-  "$schema": "https://opencode.ai/config.json",}
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "mcp-atlassian": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "-i",
+        "-e", "CONFLUENCE_URL",
+        "-e", "CONFLUENCE_PERSONAL_TOKEN",
+        "-e", "CONFLUENCE_SSL_VERIFY",
+        "-e", "JIRA_URL",
+        "-e", "JIRA_PERSONAL_TOKEN",
+        "-e", "JIRA_SSL_VERIFY",
+        "ghcr.io/sooperset/mcp-atlassian:latest"
+      ],
+      "environment": {
+        "CONFLUENCE_URL": "{env:CONFLUENCE_URL}",
+        "CONFLUENCE_PERSONAL_TOKEN": "{env:CONFLUENCE_PERSONAL_TOKEN}",
+        "CONFLUENCE_SSL_VERIFY": "false",
+        "JIRA_URL": "https://jira.tid.es",
+        "JIRA_PERSONAL_TOKEN": "{env:JIRA_PERSONAL_TOKEN}",
+        "JIRA_SSL_VERIFY": "false"
+      }
+    },
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@0.23.0"]
+    }
+  }
+}
