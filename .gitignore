@@ -2,4 +2,3 @@
 .DS_Store
 /**/**/private-*
 shell/zsh/.zim
-dotfiles/shell/secrets-exports.sh
