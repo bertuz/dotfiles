@@ -1,0 +1,372 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? Toggle AI Harness for applying experimental AI-generated code changes without needing to switch branches or stash changes.
+##?
+##? Usage:
+##?    toggle-ai-harness (on|off|status) [--harness-branch <branch>]
+
+docs::parse "$@"
+
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+scriptName="toggle-ai-harness"
+repoRoot="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$repoRoot" ]]; then
+    echo "Error: not inside a git repository." >&2
+    exit 1
+fi
+
+stateFile="$repoRoot/.git/info/ai-harness-state"
+filesFile="$repoRoot/.git/info/ai-harness-files"
+excludeFile="$repoRoot/.git/info/exclude"
+excludeStartMarker="# toggle-ai-harness:start"
+excludeEndMarker="# toggle-ai-harness:end"
+
+usage() {
+    cat <<EOF
+Usage:
+  $scriptName on --harness-branch <branch>
+  $scriptName on
+  $scriptName off
+  $scriptName status
+
+Behavior:
+  - 'on' applies files that differ between HEAD and harness branch.
+  - If '--harness-branch' is missing, 'on' prompts for it.
+  - 'off' restores current-branch HEAD versions and removes local harness state.
+EOF
+}
+
+trimValue() {
+    local value="$1"
+    value="${value#${value%%[![:space:]]*}}"
+    value="${value%${value##*[![:space:]]}}"
+    printf '%s' "$value"
+}
+
+loadStateValue() {
+    local key="$1"
+    if [[ ! -f "$stateFile" ]]; then
+        return 0
+    fi
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ "$line" == "$key="* ]]; then
+            printf '%s' "${line#*=}"
+            return 0
+        fi
+    done < "$stateFile"
+}
+
+removeHarnessExcludes() {
+    if [[ ! -f "$excludeFile" ]]; then
+        return 0
+    fi
+
+    local temporaryExcludeFile
+    temporaryExcludeFile="${excludeFile}.tmp.$$"
+
+    awk -v start="$excludeStartMarker" -v end="$excludeEndMarker" '
+        $0 == start {
+            skipping = 1
+            next
+        }
+        $0 == end {
+            skipping = 0
+            next
+        }
+        !skipping {
+            print
+        }
+    ' "$excludeFile" > "$temporaryExcludeFile"
+
+    mv "$temporaryExcludeFile" "$excludeFile"
+}
+
+writeHarnessExcludes() {
+    mkdir -p "$(dirname "$excludeFile")"
+    removeHarnessExcludes
+
+    local temporaryExcludedPathsFile
+    temporaryExcludedPathsFile="${filesFile}.excluded.tmp.$$"
+    : > "$temporaryExcludedPathsFile"
+
+    local path
+    while IFS= read -r path || [[ -n "$path" ]]; do
+        if [[ -z "$path" ]]; then
+            continue
+        fi
+
+        if git ls-files --error-unmatch -- "$path" >/dev/null 2>&1; then
+            continue
+        fi
+
+        printf '%s\n' "$path" >> "$temporaryExcludedPathsFile"
+    done < "$filesFile"
+
+    if [[ ! -s "$temporaryExcludedPathsFile" ]]; then
+        rm -f "$temporaryExcludedPathsFile"
+        return 0
+    fi
+
+    touch "$excludeFile"
+    {
+        printf '\n%s\n' "$excludeStartMarker"
+        cat "$temporaryExcludedPathsFile"
+        printf '%s\n' "$excludeEndMarker"
+    } >> "$excludeFile"
+
+    rm -f "$temporaryExcludedPathsFile"
+}
+
+writeState() {
+    local active="$1"
+    local harnessBranch="$2"
+    local branchSource="$3"
+    local currentBranch
+    currentBranch="$(git rev-parse --abbrev-ref HEAD)"
+    cat > "$stateFile" <<EOF
+active=$active
+harnessBranch=$harnessBranch
+branchSource=$branchSource
+currentBranch=$currentBranch
+filesFile=$filesFile
+updatedAt=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+EOF
+}
+
+promptHarnessBranch() {
+    local previousBranch
+    previousBranch="$(loadStateValue "harnessBranch")"
+    local inputBranch=""
+
+    if [[ -n "$previousBranch" ]]; then
+        read -r -p "Harness branch [$previousBranch]: " inputBranch
+        inputBranch="$(trimValue "$inputBranch")"
+        if [[ -z "$inputBranch" ]]; then
+            inputBranch="$previousBranch"
+        fi
+    else
+        read -r -p "Harness branch: " inputBranch
+        inputBranch="$(trimValue "$inputBranch")"
+    fi
+
+    if [[ -z "$inputBranch" ]]; then
+        echo "Error: harness branch is required." >&2
+        exit 1
+    fi
+
+    printf '%s' "$inputBranch"
+}
+
+verifyHarnessBranchExists() {
+    local harnessBranch="$1"
+    if git show-ref --verify --quiet "refs/heads/$harnessBranch"; then
+        return 0
+    fi
+    if git show-ref --verify --quiet "refs/remotes/origin/$harnessBranch"; then
+        return 0
+    fi
+    if git rev-parse --verify --quiet "$harnessBranch^{commit}" >/dev/null; then
+        return 0
+    fi
+    echo "Error: branch '$harnessBranch' not found locally or in origin." >&2
+    exit 1
+}
+
+resolveHarnessBranch() {
+    local branchArg="$1"
+    if [[ -n "$branchArg" ]]; then
+        printf '%s|arg' "$branchArg"
+        return
+    fi
+    local promptBranch
+    promptBranch="$(promptHarnessBranch)"
+    printf '%s|prompt' "$promptBranch"
+}
+
+clearSkipWorktreeAndRestore() {
+    removeHarnessExcludes
+
+    if [[ ! -f "$filesFile" ]]; then
+        return 0
+    fi
+
+    while IFS= read -r path || [[ -n "$path" ]]; do
+        if [[ -z "$path" ]]; then
+            continue
+        fi
+
+        git update-index --no-skip-worktree -- "$path" 2>/dev/null || true
+
+        if git ls-files --error-unmatch -- "$path" >/dev/null 2>&1; then
+            git restore --worktree --source HEAD -- "$path" 2>/dev/null || true
+        elif [[ -e "$repoRoot/$path" || -L "$repoRoot/$path" ]]; then
+            rm -rf -- "$repoRoot/$path"
+        fi
+    done < "$filesFile"
+}
+
+activateHarness() {
+    local harnessBranch="$1"
+    local branchSource="$2"
+
+    verifyHarnessBranchExists "$harnessBranch"
+
+    local activeState
+    activeState="$(loadStateValue "active")"
+    if [[ "$activeState" == "true" ]]; then
+        clearSkipWorktreeAndRestore
+    fi
+
+    : > "$filesFile"
+
+    local diffPath
+    while IFS= read -r diffPath || [[ -n "$diffPath" ]]; do
+        if [[ -z "$diffPath" ]]; then
+            continue
+        fi
+
+        if ! git cat-file -e "$harnessBranch:$diffPath" 2>/dev/null; then
+            continue
+        fi
+
+        git checkout "$harnessBranch" -- "$diffPath"
+        git reset -q HEAD -- "$diffPath" 2>/dev/null || true
+        printf '%s\n' "$diffPath" >> "$filesFile"
+
+        if git ls-files --error-unmatch -- "$diffPath" >/dev/null 2>&1; then
+            git update-index --skip-worktree -- "$diffPath"
+        fi
+    done < <(git diff --name-only "HEAD...$harnessBranch")
+
+    writeHarnessExcludes
+
+    writeState "true" "$harnessBranch" "$branchSource"
+
+    local appliedCount
+    appliedCount="$(wc -l < "$filesFile" | tr -d ' ')"
+    echo "Harness applied from '$harnessBranch'."
+    echo "Applied paths: $appliedCount"
+}
+
+deactivateHarness() {
+    local activeState
+    activeState="$(loadStateValue "active")"
+
+    if [[ "$activeState" != "true" ]]; then
+        echo "Harness is not active."
+        return 0
+    fi
+
+    clearSkipWorktreeAndRestore
+    rm -f "$stateFile" "$filesFile"
+    echo "Harness deactivated and local changes restored to HEAD."
+}
+
+statusHarness() {
+    local activeState harnessBranch branchSource currentBranch trackedBranch
+    activeState="$(loadStateValue "active")"
+
+    if [[ "$activeState" != "true" ]]; then
+        echo "active=false"
+        return 0
+    fi
+
+    harnessBranch="$(loadStateValue "harnessBranch")"
+    branchSource="$(loadStateValue "branchSource")"
+    currentBranch="$(loadStateValue "currentBranch")"
+    trackedBranch="$(git rev-parse --abbrev-ref HEAD)"
+
+    local appliedCount
+    if [[ -f "$filesFile" ]]; then
+        appliedCount="$(wc -l < "$filesFile" | tr -d ' ')"
+    else
+        appliedCount="0"
+    fi
+
+    local harnessOnlyPathCount="0"
+    if [[ -f "$filesFile" ]]; then
+        while IFS= read -r path || [[ -n "$path" ]]; do
+            if [[ -z "$path" ]]; then
+                continue
+            fi
+
+            if git ls-files --error-unmatch -- "$path" >/dev/null 2>&1; then
+                continue
+            fi
+
+            harnessOnlyPathCount="$((harnessOnlyPathCount + 1))"
+        done < "$filesFile"
+    fi
+
+    echo "active=true"
+    echo "harnessBranch=$harnessBranch"
+    echo "branchSource=$branchSource"
+    echo "activatedOnBranch=$currentBranch"
+    echo "currentBranch=$trackedBranch"
+    echo "appliedPaths=$appliedCount"
+    echo "harnessOnlyPaths=$harnessOnlyPathCount"
+}
+
+main() {
+    if [[ $# -lt 1 ]]; then
+        usage
+        exit 1
+    fi
+
+    local command="$1"
+    shift
+
+    local harnessBranchArg=""
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --harness-branch)
+                if [[ $# -lt 2 ]]; then
+                    echo "Error: --harness-branch requires a value." >&2
+                    exit 1
+                fi
+                harnessBranchArg="$2"
+                shift 2
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            *)
+                echo "Error: unknown argument '$1'." >&2
+                usage
+                exit 1
+                ;;
+        esac
+    done
+
+    case "$command" in
+        on)
+            local resolved harnessBranch branchSource
+            resolved="$(resolveHarnessBranch "$harnessBranchArg")"
+            harnessBranch="${resolved%%|*}"
+            branchSource="${resolved##*|}"
+            activateHarness "$harnessBranch" "$branchSource"
+            ;;
+        off)
+            deactivateHarness
+            ;;
+        status)
+            statusHarness
+            ;;
+        *)
+            echo "Error: unknown command '$command'." >&2
+            usage
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

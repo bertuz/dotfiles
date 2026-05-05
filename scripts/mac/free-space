@@ -7,7 +7,7 @@ source "$DOTLY_PATH/scripts/core/_main.sh"
 ##? It frees up space on the MacOS
 ##?
 ##? Usage:
-##?    reboot-audio
+##?    free-space
 docs::parse "$@"
 
 docker system prune -a

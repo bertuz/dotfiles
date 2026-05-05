@@ -90,4 +90,4 @@ set clipboard+=unnamedplus
 
 colorscheme melange
 
-require("CopilotChat").setup()
+"require("CopilotChat").setup()
