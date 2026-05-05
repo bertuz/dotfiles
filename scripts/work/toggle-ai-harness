@@ -8,6 +8,7 @@ source "$DOTLY_PATH/scripts/core/_main.sh"
 ##?
 ##? Usage:
 ##?    toggle-ai-harness (on|off|status) [--harness-branch <branch>]
+##?    toggle-ai-harness commit [-m <message>] [<path>...]
 
 docs::parse "$@"
 
@@ -35,11 +36,16 @@ Usage:
   $scriptName on
   $scriptName off
   $scriptName status
+  $scriptName commit [-m <message>] [<path>...]
 
 Behavior:
   - 'on' applies files that differ between HEAD and harness branch.
   - If '--harness-branch' is missing, 'on' prompts for it.
   - 'off' restores current-branch HEAD versions and removes local harness state.
+  - 'commit' commits the current working-tree state of harness files back
+    to the harness branch without switching branches. Paths are taken
+    from the recorded harness file list, falling back to git's
+    skip-worktree set, or from positional arguments when provided.
 EOF
 }
 
@@ -164,18 +170,45 @@ promptHarnessBranch() {
     printf '%s' "$inputBranch"
 }
 
-verifyHarnessBranchExists() {
+resolveHarnessRef() {
     local harnessBranch="$1"
     if git show-ref --verify --quiet "refs/heads/$harnessBranch"; then
+        printf '%s' "$harnessBranch"
         return 0
     fi
     if git show-ref --verify --quiet "refs/remotes/origin/$harnessBranch"; then
+        printf '%s' "origin/$harnessBranch"
         return 0
     fi
     if git rev-parse --verify --quiet "$harnessBranch^{commit}" >/dev/null; then
+        printf '%s' "$harnessBranch"
         return 0
     fi
-    echo "Error: branch '$harnessBranch' not found locally or in origin." >&2
+    return 1
+}
+
+fetchHarnessBranchFromOrigin() {
+    local harnessBranch="$1"
+    if ! git remote get-url origin >/dev/null 2>&1; then
+        return 1
+    fi
+    echo "Fetching '$harnessBranch' from origin..." >&2
+    if git fetch --quiet origin "refs/heads/$harnessBranch:refs/remotes/origin/$harnessBranch" 2>/dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+verifyHarnessBranchExists() {
+    local harnessBranch="$1"
+    if resolveHarnessRef "$harnessBranch" >/dev/null; then
+        return 0
+    fi
+    if fetchHarnessBranchFromOrigin "$harnessBranch" && resolveHarnessRef "$harnessBranch" >/dev/null; then
+        return 0
+    fi
+    echo "Error: branch '$harnessBranch' not found locally or in origin (repo: $repoRoot)." >&2
+    echo "Hint: ensure the branch exists, or run 'git fetch origin' and retry." >&2
     exit 1
 }
 
@@ -218,6 +251,24 @@ activateHarness() {
 
     verifyHarnessBranchExists "$harnessBranch"
 
+    local harnessRef
+    harnessRef="$(resolveHarnessRef "$harnessBranch")"
+
+    local currentBranch
+    currentBranch="$(git rev-parse --abbrev-ref HEAD)"
+    if [[ "$currentBranch" == "$harnessBranch" ]]; then
+        echo "Error: current branch '$currentBranch' is the harness branch; check out a different branch first." >&2
+        exit 1
+    fi
+
+    local harnessSha headSha
+    harnessSha="$(git rev-parse "$harnessRef^{commit}")"
+    headSha="$(git rev-parse HEAD^{commit})"
+    if [[ "$harnessSha" == "$headSha" ]]; then
+        echo "Error: harness branch '$harnessBranch' points to the same commit as HEAD; nothing to apply." >&2
+        exit 1
+    fi
+
     local activeState
     activeState="$(loadStateValue "active")"
     if [[ "$activeState" == "true" ]]; then
@@ -232,18 +283,21 @@ activateHarness() {
             continue
         fi
 
-        if ! git cat-file -e "$harnessBranch:$diffPath" 2>/dev/null; then
+        if ! git cat-file -e "$harnessRef:$diffPath" 2>/dev/null; then
             continue
         fi
 
-        git checkout "$harnessBranch" -- "$diffPath"
+        if ! git checkout "$harnessRef" -- "$diffPath"; then
+            echo "Warning: failed to checkout '$diffPath' from '$harnessRef'; skipping." >&2
+            continue
+        fi
         git reset -q HEAD -- "$diffPath" 2>/dev/null || true
         printf '%s\n' "$diffPath" >> "$filesFile"
 
         if git ls-files --error-unmatch -- "$diffPath" >/dev/null 2>&1; then
             git update-index --skip-worktree -- "$diffPath"
         fi
-    done < <(git diff --name-only "HEAD...$harnessBranch")
+    done < <(git diff --name-only "HEAD" "$harnessRef")
 
     writeHarnessExcludes
 
@@ -251,6 +305,9 @@ activateHarness() {
 
     local appliedCount
     appliedCount="$(wc -l < "$filesFile" | tr -d ' ')"
+    if [[ "$appliedCount" == "0" ]]; then
+        echo "Warning: no differing files found between HEAD and '$harnessBranch'." >&2
+    fi
     echo "Harness applied from '$harnessBranch'."
     echo "Applied paths: $appliedCount"
 }
@@ -314,6 +371,153 @@ statusHarness() {
     echo "harnessOnlyPaths=$harnessOnlyPathCount"
 }
 
+collectSkipWorktreePaths() {
+    git ls-files -v 2>/dev/null | awk '$1 == "S" { sub(/^[A-Za-z] /, ""); print }'
+}
+
+resolveCommitPaths() {
+    local outputFile="$1"
+    shift
+
+    : > "$outputFile"
+
+    if [[ $# -gt 0 ]]; then
+        local explicitPath
+        for explicitPath in "$@"; do
+            [[ -z "$explicitPath" ]] && continue
+            printf '%s\n' "$explicitPath" >> "$outputFile"
+        done
+        return 0
+    fi
+
+    if [[ -s "$filesFile" ]]; then
+        local recordedPath
+        while IFS= read -r recordedPath || [[ -n "$recordedPath" ]]; do
+            [[ -z "$recordedPath" ]] && continue
+            printf '%s\n' "$recordedPath" >> "$outputFile"
+        done < "$filesFile"
+    fi
+
+    local skipPath
+    while IFS= read -r skipPath || [[ -n "$skipPath" ]]; do
+        [[ -z "$skipPath" ]] && continue
+        if grep -Fxq -- "$skipPath" "$outputFile"; then
+            continue
+        fi
+        printf '%s\n' "$skipPath" >> "$outputFile"
+    done < <(collectSkipWorktreePaths)
+}
+
+commitHarnessChanges() {
+    local commitMessage="$1"
+    shift
+    local explicitPaths=("$@")
+
+    local activeState
+    activeState="$(loadStateValue "active")"
+    if [[ "$activeState" != "true" ]]; then
+        echo "Error: harness is not active." >&2
+        exit 1
+    fi
+
+    local harnessBranch
+    harnessBranch="$(loadStateValue "harnessBranch")"
+    if [[ -z "$harnessBranch" ]]; then
+        echo "Error: no harness branch recorded in state." >&2
+        exit 1
+    fi
+
+    if ! git show-ref --verify --quiet "refs/heads/$harnessBranch"; then
+        echo "Error: local branch '$harnessBranch' not found. Create it locally before committing." >&2
+        exit 1
+    fi
+
+    local harnessRef="refs/heads/$harnessBranch"
+
+    local candidatePathsFile temporaryIndexFile
+    candidatePathsFile="$(mktemp "${TMPDIR:-/tmp}/ai-harness-paths.XXXXXX")"
+    temporaryIndexFile="$(mktemp "${TMPDIR:-/tmp}/ai-harness-index.XXXXXX")"
+
+    cleanupCommitArtifacts() {
+        rm -f "$candidatePathsFile" "$temporaryIndexFile"
+    }
+
+    resolveCommitPaths "$candidatePathsFile" ${explicitPaths[@]+"${explicitPaths[@]}"}
+
+    if [[ ! -s "$candidatePathsFile" ]]; then
+        cleanupCommitArtifacts
+        echo "Error: no harness paths to commit." >&2
+        echo "Hint: pass paths explicitly, e.g. '$scriptName commit -- path/to/file'." >&2
+        exit 1
+    fi
+
+    GIT_INDEX_FILE="$temporaryIndexFile" git read-tree "$harnessRef"
+
+    local changedCount=0
+    local path blobHash mode existingEntry existingHash
+    while IFS= read -r path || [[ -n "$path" ]]; do
+        if [[ -z "$path" ]]; then
+            continue
+        fi
+
+        if [[ ! -e "$repoRoot/$path" && ! -L "$repoRoot/$path" ]]; then
+            existingEntry="$(GIT_INDEX_FILE="$temporaryIndexFile" git ls-files -s -- "$path" 2>/dev/null || true)"
+            if [[ -n "$existingEntry" ]]; then
+                GIT_INDEX_FILE="$temporaryIndexFile" git update-index --remove -- "$path"
+                changedCount=$((changedCount + 1))
+            fi
+            continue
+        fi
+
+        blobHash="$(git hash-object -w -- "$repoRoot/$path")"
+
+        if [[ -L "$repoRoot/$path" ]]; then
+            mode="120000"
+        elif [[ -x "$repoRoot/$path" ]]; then
+            mode="100755"
+        else
+            mode="100644"
+        fi
+
+        existingEntry="$(GIT_INDEX_FILE="$temporaryIndexFile" git ls-files -s -- "$path" 2>/dev/null || true)"
+        existingHash=""
+        if [[ -n "$existingEntry" ]]; then
+            existingHash="$(printf '%s' "$existingEntry" | awk '{print $2}')"
+        fi
+
+        if [[ "$existingHash" == "$blobHash" ]]; then
+            continue
+        fi
+
+        GIT_INDEX_FILE="$temporaryIndexFile" git update-index --add --cacheinfo "$mode,$blobHash,$path"
+        changedCount=$((changedCount + 1))
+    done < "$candidatePathsFile"
+
+    if [[ "$changedCount" -eq 0 ]]; then
+        cleanupCommitArtifacts
+        echo "No changes detected against '$harnessBranch'."
+        return 0
+    fi
+
+    local newTree
+    newTree="$(GIT_INDEX_FILE="$temporaryIndexFile" git write-tree)"
+
+    local parentCommit
+    parentCommit="$(git rev-parse "$harnessRef")"
+
+    if [[ -z "$commitMessage" ]]; then
+        commitMessage="ai-harness: update from $(git rev-parse --abbrev-ref HEAD) at $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    fi
+
+    local newCommit
+    newCommit="$(printf '%s\n' "$commitMessage" | git commit-tree "$newTree" -p "$parentCommit")"
+
+    git update-ref "$harnessRef" "$newCommit" "$parentCommit"
+
+    cleanupCommitArtifacts
+    echo "Committed $changedCount path(s) to '$harnessBranch' as ${newCommit:0:12}."
+}
+
 main() {
     if [[ $# -lt 1 ]]; then
         usage
@@ -324,8 +528,16 @@ main() {
     shift
 
     local harnessBranchArg=""
+    local commitMessageArg=""
+    local positionalPaths=()
+    local positionalMode="false"
 
     while [[ $# -gt 0 ]]; do
+        if [[ "$positionalMode" == "true" ]]; then
+            positionalPaths+=("$1")
+            shift
+            continue
+        fi
         case "$1" in
             --harness-branch)
                 if [[ $# -lt 2 ]]; then
@@ -335,14 +547,36 @@ main() {
                 harnessBranchArg="$2"
                 shift 2
                 ;;
+            -m|--message)
+                if [[ $# -lt 2 ]]; then
+                    echo "Error: -m requires a value." >&2
+                    exit 1
+                fi
+                commitMessageArg="$2"
+                shift 2
+                ;;
             -h|--help)
                 usage
                 exit 0
                 ;;
-            *)
+            --)
+                positionalMode="true"
+                shift
+                ;;
+            -*)
                 echo "Error: unknown argument '$1'." >&2
                 usage
                 exit 1
+                ;;
+            *)
+                if [[ "$command" == "commit" ]]; then
+                    positionalPaths+=("$1")
+                    shift
+                else
+                    echo "Error: unknown argument '$1'." >&2
+                    usage
+                    exit 1
+                fi
                 ;;
         esac
     done
@@ -360,6 +594,9 @@ main() {
             ;;
         status)
             statusHarness
+            ;;
+        commit)
+            commitHarnessChanges "$commitMessageArg" ${positionalPaths[@]+"${positionalPaths[@]}"}
             ;;
         *)
             echo "Error: unknown command '$command'." >&2
