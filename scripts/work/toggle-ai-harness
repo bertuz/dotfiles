@@ -277,9 +277,28 @@ activateHarness() {
 
     : > "$filesFile"
 
-    local diffPath
+    local mergeBaseSha
+    mergeBaseSha="$(git merge-base "HEAD" "$harnessRef" 2>/dev/null || true)"
+    if [[ -z "$mergeBaseSha" ]]; then
+        echo "Error: no common ancestor between HEAD and '$harnessBranch'." >&2
+        exit 1
+    fi
+
+    local headChangedPathsFile harnessChangedPathsFile
+    headChangedPathsFile="$(mktemp "${TMPDIR:-/tmp}/ai-harness-head-paths.XXXXXX")"
+    harnessChangedPathsFile="$(mktemp "${TMPDIR:-/tmp}/ai-harness-branch-paths.XXXXXX")"
+
+    git diff --name-only "$mergeBaseSha" "HEAD" > "$headChangedPathsFile"
+    git diff --name-only "$mergeBaseSha" "$harnessRef" > "$harnessChangedPathsFile"
+
+    local diffPath skippedNewerOnHeadCount=0
     while IFS= read -r diffPath || [[ -n "$diffPath" ]]; do
         if [[ -z "$diffPath" ]]; then
+            continue
+        fi
+
+        if grep -Fxq -- "$diffPath" "$headChangedPathsFile"; then
+            skippedNewerOnHeadCount=$((skippedNewerOnHeadCount + 1))
             continue
         fi
 
@@ -297,7 +316,9 @@ activateHarness() {
         if git ls-files --error-unmatch -- "$diffPath" >/dev/null 2>&1; then
             git update-index --skip-worktree -- "$diffPath"
         fi
-    done < <(git diff --name-only "HEAD" "$harnessRef")
+    done < "$harnessChangedPathsFile"
+
+    rm -f "$headChangedPathsFile" "$harnessChangedPathsFile"
 
     writeHarnessExcludes
 
@@ -306,10 +327,13 @@ activateHarness() {
     local appliedCount
     appliedCount="$(wc -l < "$filesFile" | tr -d ' ')"
     if [[ "$appliedCount" == "0" ]]; then
-        echo "Warning: no differing files found between HEAD and '$harnessBranch'." >&2
+        echo "Warning: no harness-only paths found to apply from '$harnessBranch'." >&2
     fi
     echo "Harness applied from '$harnessBranch'."
     echo "Applied paths: $appliedCount"
+    if [[ "$skippedNewerOnHeadCount" -gt 0 ]]; then
+        echo "Skipped (newer on HEAD): $skippedNewerOnHeadCount"
+    fi
 }
 
 deactivateHarness() {

@@ -21,11 +21,13 @@
     ~/.config/github-copilot/global-copilot-instructions.md: os/mac/ai/GLOBAL_AGENTS.md
     ~/.config/github-copilot/agents/code-reviewer.agent.md: os/mac/ai/agents/code-reviewer.md
     ~/.copilot/agents/code-reviewer.md: os/mac/ai/agents/code-reviewer.md
+    ~/.copilot/skills: os/mac/ai/skills
     ~/.config/github-copilot/intellij/global-copilot-instructions.md: os/mac/ai/GLOBAL_AGENTS.md
     ~/.config/github-copilot/intellij/agents/code-reviewer.agent.md: os/mac/ai/agents/code-reviewer.md
     ~/.claude/CLAUDE.md: os/mac/ai/GLOBAL_AGENTS.md
     ~/.claude/settings.json: os/mac/ai/claude/settings.json
     ~/.claude/security-guard.py: os/mac/ai/claude/security-guard.py
+    ~/.claude/skills: os/mac/ai/skills
     ~/.config/opencode/opencode.jsonc: os/mac/ai/opencode/opencode.jsonc
     ~/.config/opencode/package.json: os/mac/ai/opencode/package.json
     ~/.config/opencode/package-lock.json: os/mac/ai/opencode/package-lock.json
