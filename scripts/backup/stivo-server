@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$DOTLY_PATH/scripts/core/_main.sh"
+
+##? backup up my stivo server
+##?
+##? Usage:
+##?    stivo-server [-f | --force]
+##?
+##? Options:
+##?    -f --force   Force backup, ignoring the 24h check
+docs::parse "$@"
+
+FORCE=false
+for arg in "$@"; do
+    [[ "$arg" == "-f" || "$arg" == "--force" ]] && FORCE=true
+done
+
+# Configuration (override via env vars)
+EXTERNAL_DISK="${EXTERNAL_DISK:-/Volumes/xxx}"
+BACKUP_DIR="${BACKUP_DIR:-$EXTERNAL_DISK/xxx}"
+LAST_BACKUP_FILE="${LAST_BACKUP_FILE:-$BACKUP_DIR/.last_backup}"
+REMOTE_USER="${REMOTE_USER:-xxx}"
+REMOTE_HOST="${REMOTE_HOST:-127.0.0.1}"
+SSH_KEY="${SSH_KEY:-$HOME/.ssh/xxx}"
+MIN_HOURS_BETWEEN="${MIN_HOURS_BETWEEN:-24}"
+
+# REMOTE_DIRS env var: space-separated list of remote paths
+if [[ -n "${REMOTE_DIRS:-}" ]]; then
+    read -r -a REMOTE_DIRS <<< "$REMOTE_DIRS"
+else
+    REMOTE_DIRS=("/home/")
+fi
+
+# 1. Check if external disk is mounted
+if [[ ! -d "$EXTERNAL_DISK" ]]; then
+    echo "External disk not mounted. Waiting for next opportunity..."
+    exit 0
+fi
+
+# 2. Check if 24h has passed since last backup
+if [[ "$FORCE" == false && -f "$LAST_BACKUP_FILE" ]]; then
+    LAST_BACKUP=$(cat "$LAST_BACKUP_FILE")
+    CURRENT_TIME=$(date +%s)
+    HOURS_SINCE=$((($CURRENT_TIME - $LAST_BACKUP) / 3600))
+
+    if (( $HOURS_SINCE < $MIN_HOURS_BETWEEN )); then
+        echo "Last backup was ${HOURS_SINCE}h ago. Too soon."
+        exit 0
+    fi
+fi
+
+# 3. Ask for user approval
+osascript -e 'display dialog "Ready to backup server. Proceed?" buttons {"No", "Yes"} default button "Yes"' 2>/dev/null
+if [[ $? -ne 0 ]]; then
+    echo "Backup cancelled by user."
+    exit 0
+fi
+
+# 4. Perform backup
+mkdir -p "$BACKUP_DIR"
+BACKUP_DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_PATH="$BACKUP_DIR/$BACKUP_DATE"
+
+echo "Starting backup at $(date)..."
+
+RSYNC_STATUS=0
+for remoteDir in "${REMOTE_DIRS[@]}"; do
+    destPath="$BACKUP_PATH${remoteDir}"
+    mkdir -p "$destPath"
+    echo "Syncing $remoteDir -> $destPath"
+    rsync -avz \
+      -e "ssh -i $SSH_KEY" \
+      --delete \
+      "$REMOTE_USER@$REMOTE_HOST:$remoteDir/" \
+      "$destPath/" || RSYNC_STATUS=$?
+done
+
+if [[ $RSYNC_STATUS -eq 0 ]]; then
+    # Record successful backup time
+    date +%s > "$LAST_BACKUP_FILE"
+    osascript -e 'display notification "Server backup completed successfully" with title "Backup"'
+    echo "Backup completed successfully at $(date)"
+else
+    osascript -e 'display notification "Server backup FAILED" with title "Backup Error"'
+    echo "Backup failed at $(date)"
+    exit 1
+fi

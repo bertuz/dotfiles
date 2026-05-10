@@ -34,6 +34,7 @@
     ~/.config/opencode/.gitignore: os/mac/ai/opencode/.gitignore
     ~/.config/opencode/plugins: os/mac/ai/opencode/plugins
     ~/.config/opencode/agents: os/mac/ai/opencode/agents
+    ~/bin/backup_server: scripts/backup/stivo-server
 
 # if symlinked, it does not work
 #    ~/Library/Preferences/com.googlecode.iterm2.plist: os/mac/iTerm/com.googlecode.iterm2.plist

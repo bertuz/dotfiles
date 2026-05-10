@@ -10,6 +10,6 @@ source "$DOTLY_PATH/scripts/core/_main.sh"
 ##?    backup-iterm-settings
 docs::parse "$@"
 
-cp ~/Library/Preferences/com.googlecode.iterm2.plist "${DOTLY_PATH}/os/mac/iTerm/com.googlecode.iterm2.plist"
+cp ~/Library/Preferences/com.googlecode.iterm2.plist "${DOTLY_PATH}/../../os/mac/iTerm/com.googlecode.iterm2.plist"
 
 echo "Settings backed up into dotfiles. Remember to commit and push it."
