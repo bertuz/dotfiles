@@ -25,6 +25,7 @@ LAST_BACKUP_FILE="${LAST_BACKUP_FILE:-$BACKUP_DIR/.last_backup}"
 REMOTE_USER="${REMOTE_USER:-xxx}"
 REMOTE_HOST="${REMOTE_HOST:-127.0.0.1}"
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/xxx}"
+SSH_PORT="${SSH_PORT:-22}"
 MIN_HOURS_BETWEEN="${MIN_HOURS_BETWEEN:-24}"
 
 # REMOTE_DIRS env var: space-separated list of remote paths
@@ -33,6 +34,18 @@ if [[ -n "${REMOTE_DIRS:-}" ]]; then
 else
     REMOTE_DIRS=("/home/")
 fi
+
+# EXCLUDE_PATHS env var: space-separated list of rsync exclude patterns
+if [[ -n "${EXCLUDE_PATHS:-}" ]]; then
+    read -r -a EXCLUDE_PATHS <<< "$EXCLUDE_PATHS"
+else
+    EXCLUDE_PATHS=()
+fi
+
+RSYNC_EXCLUDES=()
+for pattern in "${EXCLUDE_PATHS[@]}"; do
+    RSYNC_EXCLUDES+=(--exclude "$pattern")
+done
 
 # 1. Check if external disk is mounted
 if [[ ! -d "$EXTERNAL_DISK" ]]; then
@@ -72,8 +85,9 @@ for remoteDir in "${REMOTE_DIRS[@]}"; do
     mkdir -p "$destPath"
     echo "Syncing $remoteDir -> $destPath"
     rsync -avz \
-      -e "ssh -i $SSH_KEY" \
+      -e "ssh -i $SSH_KEY -p $SSH_PORT" \
       --delete \
+      ${RSYNC_EXCLUDES[@]+"${RSYNC_EXCLUDES[@]}"} \
       "$REMOTE_USER@$REMOTE_HOST:$remoteDir/" \
       "$destPath/" || RSYNC_STATUS=$?
 done
